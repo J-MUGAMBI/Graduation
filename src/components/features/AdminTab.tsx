@@ -32,10 +32,10 @@ export function AdminTab() {
       supabase.from('photos_view').select('*').order('created_at', { ascending: false }),
       supabase.from('feed_posts_view').select('*').order('created_at', { ascending: false }).limit(50),
     ])
-    const rsvpData = r1.data ?? []
-    const reqData = r2.data ?? []
-    const photoData = r3.data ?? []
-    const postData = r4.data ?? []
+    const rsvpData: RsvpView[] = (r1.data ?? []) as RsvpView[]
+    const reqData: RequestView[] = (r2.data ?? []) as RequestView[]
+    const photoData: PhotoView[] = (r3.data ?? []) as PhotoView[]
+    const postData: FeedPostView[] = (r4.data ?? []) as FeedPostView[]
     setRsvps(rsvpData)
     setRequests(reqData)
     setPhotos(photoData)
