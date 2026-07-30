@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
@@ -41,7 +42,7 @@ export function RsvpTab() {
     if (!profile) return toast.error('Please enter your name on the Home tab first.')
     if (!user) return
     setSaving(true)
-    const { error } = await supabase.from('rsvps').upsert(
+    const { error } = await (supabase as any).from('rsvps').upsert(
       { user_id: user.id, phone, status, dietary, note, attendee_count: attendeeCount },
       { onConflict: 'user_id' }
     )

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
@@ -41,14 +42,14 @@ export function ChatTab() {
     if (!text.trim()) return
     if (text.trim().length > 500) return toast.error('Message too long (max 500 characters).')
     setSending(true)
-    const { error } = await supabase.from('messages').insert({ user_id: user!.id, body: text.trim() })
+    const { error } = await (supabase as any).from('messages').insert({ user_id: user!.id, body: text.trim() })
     setSending(false)
     if (error) return toast.error(error.message)
     setText('')
   }
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase.from('messages').delete().eq('id', id)
+    const { error } = await (supabase as any).from('messages').delete().eq('id', id)
     if (error) toast.error(error.message)
   }
 

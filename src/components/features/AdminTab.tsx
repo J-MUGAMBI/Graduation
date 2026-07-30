@@ -1,5 +1,7 @@
 'use client'
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { toast } from 'react-hot-toast'
 import { LayoutDashboard, Users, CheckSquare, Bell, Image, Megaphone, Trash2, RefreshCw } from 'lucide-react'
@@ -26,16 +28,17 @@ export function AdminTab() {
   const supabase = useMemo(() => createClient(), [])
 
   const load = useCallback(async () => {
+    const db = supabase as any
     const [r1, r2, r3, r4] = await Promise.all([
-      supabase.from('rsvps_view').select('*').order('created_at', { ascending: false }),
-      supabase.from('requests_view').select('*').order('created_at', { ascending: false }),
-      supabase.from('photos_view').select('*').order('created_at', { ascending: false }),
-      supabase.from('feed_posts_view').select('*').order('created_at', { ascending: false }).limit(50),
+      db.from('rsvps_view').select('*').order('created_at', { ascending: false }),
+      db.from('requests_view').select('*').order('created_at', { ascending: false }),
+      db.from('photos_view').select('*').order('created_at', { ascending: false }),
+      db.from('feed_posts_view').select('*').order('created_at', { ascending: false }).limit(50),
     ])
-    const rsvpData: RsvpView[] = (r1.data ?? []) as RsvpView[]
-    const reqData: RequestView[] = (r2.data ?? []) as RequestView[]
-    const photoData: PhotoView[] = (r3.data ?? []) as PhotoView[]
-    const postData: FeedPostView[] = (r4.data ?? []) as FeedPostView[]
+    const rsvpData: RsvpView[] = r1.data ?? []
+    const reqData: RequestView[] = r2.data ?? []
+    const photoData: PhotoView[] = r3.data ?? []
+    const postData: FeedPostView[] = r4.data ?? []
     setRsvps(rsvpData)
     setRequests(reqData)
     setPhotos(photoData)
@@ -52,33 +55,37 @@ export function AdminTab() {
   }, [supabase])
 
   useEffect(() => {
-    if (profile === null) return   // still loading auth
+    if (profile === null) return
     if (!profile.is_admin) { setLoading(false); return }
     load()
   }, [profile, load])
 
   const setRequestStatus = async (id: string, status: string) => {
-    const { error } = await supabase.from('requests').update({ status }).eq('id', id)
+    const { error } = await (supabase as any).from('requests').update({ status }).eq('id', id)
     if (error) toast.error(error.message)
     else { toast.success(`Status → ${status}`); load() }
   }
 
   const deletePhoto = async (photo: PhotoView) => {
     await supabase.storage.from('event-photos').remove([photo.storage_path])
-    await supabase.from('photos').delete().eq('id', photo.id)
+    await (supabase as any).from('photos').delete().eq('id', photo.id)
     toast.success('Photo removed.')
     load()
   }
 
   const togglePhotoApproval = async (photo: PhotoView) => {
-    await supabase.from('photos').update({ approved: !photo.approved }).eq('id', photo.id)
+    await (supabase as any).from('photos').update({ approved: !photo.approved }).eq('id', photo.id)
     load()
   }
 
   const sendAnnouncement = async () => {
     if (!announcement.trim()) return
     setPosting(true)
-    const { error } = await supabase.from('feed_posts').insert({ user_id: user!.id, body: announcement.trim(), is_announcement: true })
+    const { error } = await (supabase as any).from('feed_posts').insert({
+      user_id: user!.id,
+      body: announcement.trim(),
+      is_announcement: true,
+    })
     setPosting(false)
     if (error) return toast.error(error.message)
     toast.success('Announcement published! 📢')
@@ -87,7 +94,7 @@ export function AdminTab() {
   }
 
   const deletePost = async (id: string) => {
-    await supabase.from('feed_posts').delete().eq('id', id)
+    await (supabase as any).from('feed_posts').delete().eq('id', id)
     load()
   }
 

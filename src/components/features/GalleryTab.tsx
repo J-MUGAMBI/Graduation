@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
@@ -59,7 +60,7 @@ export function GalleryTab() {
       const { error: uploadError } = await supabase.storage.from('event-photos').upload(path, file, { contentType: file.type })
       if (uploadError) return toast.error(uploadError.message)
       const { data: { publicUrl } } = supabase.storage.from('event-photos').getPublicUrl(path)
-      const { error } = await supabase.from('photos').insert({ user_id: user!.id, storage_path: path, public_url: publicUrl, caption })
+      const { error } = await (supabase as any).from('photos').insert({ user_id: user!.id, storage_path: path, public_url: publicUrl, caption })
       if (error) return toast.error(error.message)
       toast.success('Photo uploaded! 📸')
       setFile(null)
@@ -73,7 +74,7 @@ export function GalleryTab() {
 
   const handleDelete = async (photo: PhotoView) => {
     await supabase.storage.from('event-photos').remove([photo.storage_path])
-    const { error } = await supabase.from('photos').delete().eq('id', photo.id)
+    const { error } = await (supabase as any).from('photos').delete().eq('id', photo.id)
     if (error) toast.error(error.message)
     else toast.success('Photo removed.')
   }

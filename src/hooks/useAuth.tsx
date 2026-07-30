@@ -1,4 +1,5 @@
 'use client'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
@@ -23,7 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const refreshProfile = useCallback(async () => {
     const { data: { user: u } } = await supabase.auth.getUser()
     if (!u) return
-    const { data } = await supabase.from('profiles').select('*').eq('id', u.id).maybeSingle()
+    const { data } = await (supabase as any).from('profiles').select('*').eq('id', u.id).maybeSingle()
     setProfile(data)
   }, [supabase])
 
@@ -36,7 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       setUser(session?.user ?? null)
       if (session?.user) {
-        const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
+        const { data } = await (supabase as any).from('profiles').select('*').eq('id', session.user.id).maybeSingle()
         setProfile(data)
       }
       setLoading(false)
