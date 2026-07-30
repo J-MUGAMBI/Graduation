@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { @apply bg-cream text-navy-500 font-sans antialiased; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-navy-500 text-white font-bold px-5 py-2.5 rounded-xl hover:bg-navy-600 active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-gold {
+    @apply bg-gold-500 text-navy-500 font-bold px-5 py-2.5 rounded-xl hover:bg-gold-600 active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-danger {
+    @apply bg-red-600 text-white font-bold px-5 py-2.5 rounded-xl hover:bg-red-700 active:scale-95 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-ghost {
+    @apply bg-transparent border border-navy-200 text-navy-500 font-semibold px-4 py-2 rounded-xl hover:bg-navy-50 active:scale-95 transition-all duration-150;
+  }
+  .card {
+    @apply bg-white rounded-2xl shadow-md border border-amber-100 p-6;
+  }
+  .input {
+    @apply w-full px-4 py-3 border border-gray-200 rounded-xl font-sans text-sm focus:outline-none focus:ring-2 focus:ring-gold-400 focus:border-transparent transition-all;
+  }
+  .label {
+    @apply block text-sm font-bold text-navy-500 mb-1.5;
+  }
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold;
+  }
+  .section-title {
+    @apply text-xl font-black text-navy-500 mb-4;
+  }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #c59a42 #f8f3e8;
+  }
+  .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: #f8f3e8; border-radius: 3px; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: #c59a42; border-radius: 3px; }
+}
