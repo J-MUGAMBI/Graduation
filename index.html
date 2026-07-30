@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#071a3d" />
+  <title>GradConnect | Joseph Mugambi</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root{--navy:#071a3d;--gold:#c59a42;--cream:#f8f3e8;--white:#fff;--text:#172033;--muted:#667085;--danger:#b42318;--ok:#087a55;--shadow:0 10px 30px rgba(7,26,61,.12);--radius:18px}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:linear-gradient(180deg,var(--cream),#fff);color:var(--text)}
+    header{background:linear-gradient(135deg,var(--navy),#123d7a);color:#fff;padding:28px 16px;border-bottom:5px solid var(--gold)}
+    .wrap{max-width:1100px;margin:auto}.hero{display:grid;grid-template-columns:1.3fr .8fr;gap:18px;align-items:center}
+    h1{font-size:clamp(2rem,5vw,4rem);margin:.25rem 0}.eyebrow{color:#f0d38a;letter-spacing:.17em;font-weight:900;font-size:.78rem}
+    .event-card,.card{border-radius:var(--radius);padding:20px}.event-card{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2)}
+    nav{position:sticky;top:0;z-index:20;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.08);overflow-x:auto;white-space:nowrap}
+    nav .wrap{display:flex;gap:8px;padding:10px 14px}nav button{border:0;border-radius:999px;background:#f2f4f7;color:var(--navy);font-weight:800;padding:10px 14px;cursor:pointer}
+    nav button.active{background:var(--navy);color:#fff}main{padding:22px 14px 50px}section{display:none}section.active{display:block}
+    .grid{display:grid;gap:18px}.two{grid-template-columns:repeat(2,minmax(0,1fr))}.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .card{background:#fff;box-shadow:var(--shadow);border:1px solid #eee6d6}.card h2,.card h3{margin-top:0;color:var(--navy)}
+    label{display:block;font-weight:800;margin:12px 0 6px}input,select,textarea{width:100%;padding:12px;border:1px solid #cfd4dc;border-radius:12px;font:inherit}
+    textarea{min-height:90px;resize:vertical}.primary{border:0;border-radius:12px;padding:12px 16px;background:var(--navy);color:#fff;font-weight:900;cursor:pointer;margin-top:12px}
+    .gold{background:var(--gold);color:#172033}.danger{background:var(--danger)}.muted{color:var(--muted)}.notice{background:#fff7df;border:1px solid #efd48e;padding:14px;border-radius:12px;margin-bottom:16px}
+    .countdown{font-size:clamp(1.4rem,4vw,2.2rem);font-weight:950;color:var(--navy)}.item{padding:13px 0;border-bottom:1px solid #eaecf0}.item:last-child{border-bottom:0}.meta{font-size:.8rem;color:var(--muted)}
+    .chatbox{height:390px;overflow:auto;background:#f8fafc;border-radius:14px;padding:10px}.bubble{background:#e8eef8;border-radius:14px;padding:10px 12px;margin:8px 0;max-width:84%}
+    .status{display:inline-block;border-radius:999px;padding:4px 9px;font-size:.75rem;font-weight:900;background:#eef2ff}.status.completed{background:#dcfae6;color:#05603a}.status.progress{background:#fff3cd;color:#7a4d00}
+    .photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}.photo img{width:100%;height:170px;object-fit:cover;border-radius:14px}
+    .stats{text-align:center;background:var(--cream);padding:18px;border-radius:16px}.stats b{display:block;font-size:2rem;color:var(--navy)}.hidden{display:none!important}
+    .inline{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.small{border:0;border-radius:9px;padding:7px 10px;font-weight:800;cursor:pointer}
+    footer{text-align:center;background:var(--navy);color:#fff;border-top:4px solid var(--gold);padding:25px}
+    @media(max-width:800px){.hero,.two,.three{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<header><div class="wrap hero">
+  <div><div class="eyebrow">GRADCONNECT</div><h1>Joseph Mugambi's Graduation Celebration</h1><p>Beyond Data. Beyond Limits. Towards Impact.</p></div>
+  <div class="event-card"><p><b>Date:</b> Saturday, 15 August 2026</p><p><b>Time:</b> 2:00 PM</p><p><b>Venue:</b> Nairobi Club</p><p><b>Award:</b> Master's in Data Science and Analytics</p></div>
+</div></header>
+<nav><div class="wrap">
+  <button class="tab active" data-tab="home">Home</button><button class="tab" data-tab="rsvp">RSVP</button><button class="tab" data-tab="feed">Live Feed</button>
+  <button class="tab" data-tab="chat">Chat</button><button class="tab" data-tab="requests">Requests</button><button class="tab" data-tab="gallery">Gallery</button><button class="tab" data-tab="admin">Host</button>
+</div></nav>
+<main class="wrap">
+  <div id="setupWarning" class="notice hidden"><b>Setup required:</b> Add your Supabase URL and public key in <code>config.js</code>.</div>
+
+  <section id="home" class="active">
+    <div class="notice"><b>Welcome.</b> Please enter your name once to participate in the shared event experience.</div>
+    <div class="grid two">
+      <div class="card"><h2>Guest Access</h2><label>Your name</label><input id="guestName" placeholder="Full name"><button id="saveName" class="primary">Enter GradConnect</button><p id="identityMsg" class="muted"></p></div>
+      <div class="card"><h2>Countdown</h2><div id="countdown" class="countdown"></div><p class="muted">Saturday, 15 August 2026 at 2:00 PM.</p></div>
+    </div>
+    <div class="card" style="margin-top:18px"><h2>Programme</h2><ol><li>2:00 PM — Guest arrival</li><li>2:30 PM — Refreshments and networking</li><li>3:00 PM — Graduation toast and speeches</li><li>3:45 PM — Photography session</li><li>4:30 PM — Entertainment and celebration</li><li>6:00 PM — Closing remarks</li></ol></div>
+  </section>
+
+  <section id="rsvp"><div class="card"><h2>Confirm Attendance</h2>
+    <form id="rsvpForm"><div class="grid two"><div><label>Phone number</label><input id="rsvpPhone" required></div><div><label>Attendance</label><select id="rsvpStatus"><option value="attending">Yes, I will attend</option><option value="declined">No, I cannot attend</option><option value="maybe">Maybe</option></select></div></div>
+    <label>Dietary preference</label><select id="rsvpDiet"><option>None</option><option>Vegetarian</option><option>Halal</option><option>Other</option></select>
+    <label>Special request</label><textarea id="rsvpNote"></textarea><button class="primary" type="submit">Save RSVP</button></form><p id="rsvpMsg" class="muted"></p>
+  </div></section>
+
+  <section id="feed"><div class="grid two"><div class="card"><h2>Share an Update</h2><textarea id="feedText" placeholder="Congratulatory message or update"></textarea><button id="postFeed" class="primary">Post</button></div><div class="card"><h2>Live Feed</h2><div id="feedList"></div></div></div></section>
+
+  <section id="chat"><div class="card"><h2>Guest Chat</h2><div id="chatBox" class="chatbox"></div><input id="chatText" placeholder="Type a message" style="margin-top:12px"><button id="sendChat" class="primary">Send</button></div></section>
+
+  <section id="requests"><div class="grid two"><div class="card"><h2>Make a Request</h2>
+    <label>Request type</label><select id="reqType"><option>Bottled water</option><option>Food service</option><option>Transport assistance</option><option>Photography assistance</option><option>Seating support</option><option>Other</option></select>
+    <label>Table or location</label><input id="reqLocation" placeholder="Example: Table 6"><label>Details</label><textarea id="reqDetails"></textarea><button id="submitRequest" class="primary gold">Submit</button>
+  </div><div class="card"><h2>My Requests</h2><div id="requestList"></div></div></div></section>
+
+  <section id="gallery"><div class="card"><h2>Share a Photo</h2><input id="photoFile" type="file" accept="image/*"><label>Caption</label><input id="photoCaption"><button id="uploadPhoto" class="primary">Upload</button><p id="uploadMsg" class="muted"></p></div>
+    <div class="card" style="margin-top:18px"><h2>Shared Gallery</h2><div id="photoGrid" class="photos"></div></div></section>
+
+  <section id="admin"><div class="card"><h2>Host Dashboard</h2><p id="adminAccess" class="muted">Only accounts marked as administrators in Supabase can use this section.</p></div>
+    <div id="adminPanel" class="hidden">
+      <div class="grid three" style="margin-top:18px"><div class="stats"><b id="statRsvp">0</b>RSVPs</div><div class="stats"><b id="statReq">0</b>Requests</div><div class="stats"><b id="statPhotos">0</b>Photos</div></div>
+      <div class="grid two" style="margin-top:18px"><div class="card"><h3>RSVPs</h3><div id="adminRsvps"></div></div><div class="card"><h3>Requests</h3><div id="adminRequests"></div></div></div>
+      <div class="card" style="margin-top:18px"><h3>Announcement</h3><textarea id="announcement"></textarea><button id="sendAnnouncement" class="primary gold">Publish</button></div>
+    </div>
+  </section>
+</main>
+<footer>GradConnect — Joseph Mugambi Graduation Celebration</footer>
+
+<script src="config.js"></script>
+<script>
+const cfg=window.GRADCONNECT_CONFIG||{};
+const configured=cfg.supabaseUrl&&cfg.supabaseAnonKey&&!cfg.supabaseUrl.includes("YOUR_");
+if(!configured) document.getElementById("setupWarning").classList.remove("hidden");
+const sb=configured?supabase.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey):null;
+let sessionUser=null, profile=null;
+
+const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
+const needUser=()=>{if(!profile?.display_name){alert("Please enter your name on the Home tab first.");return false}return true};
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));document.querySelectorAll("section").forEach(x=>x.classList.remove("active"));b.classList.add("active");document.getElementById(b.dataset.tab).classList.add("active")});
+
+function countdown(){const d=new Date("2026-08-15T14:00:00+03:00")-new Date();if(d<=0)return countdownEl.textContent="The celebration is here!";countdownEl.textContent=`${Math.floor(d/86400000)} days, ${Math.floor(d%86400000/3600000)} hours, ${Math.floor(d%3600000/60000)} minutes`}
+const countdownEl=document.getElementById("countdown");countdown();setInterval(countdown,60000);
+
+async function init(){
+ if(!sb)return;
+ let {data:{session}}=await sb.auth.getSession();
+ if(!session){const {data,error}=await sb.auth.signInAnonymously();if(error)return alert("Anonymous sign-in must be enabled in Supabase.");session=data.session}
+ sessionUser=session.user;
+ await loadProfile(); await refreshAll(); subscribe();
+}
+async function loadProfile(){
+ const {data}=await sb.from("profiles").select("*").eq("id",sessionUser.id).maybeSingle();
+ profile=data||null;
+ if(profile){guestName.value=profile.display_name||"";identityMsg.textContent=`Signed in as ${profile.display_name}`;if(profile.is_admin){adminPanel.classList.remove("hidden");adminAccess.textContent="Administrator access enabled."}}
+}
+saveName.onclick=async()=>{if(!sb)return;if(!guestName.value.trim())return;const row={id:sessionUser.id,display_name:guestName.value.trim()};const {error}=await sb.from("profiles").upsert(row);if(error)return alert(error.message);await loadProfile()};
+
+rsvpForm.onsubmit=async e=>{e.preventDefault();if(!needUser())return;const {error}=await sb.from("rsvps").upsert({user_id:sessionUser.id,phone:rsvpPhone.value,status:rsvpStatus.value,dietary:rsvpDiet.value,note:rsvpNote.value},{onConflict:"user_id"});rsvpMsg.textContent=error?error.message:"Your RSVP has been saved.";refreshRsvps()};
+
+postFeed.onclick=async()=>{if(!needUser()||!feedText.value.trim())return;const {error}=await sb.from("feed_posts").insert({user_id:sessionUser.id,body:feedText.value.trim()});if(error)alert(error.message);else feedText.value=""};
+sendChat.onclick=async()=>{if(!needUser()||!chatText.value.trim())return;const {error}=await sb.from("messages").insert({user_id:sessionUser.id,body:chatText.value.trim()});if(error)alert(error.message);else chatText.value=""};
+submitRequest.onclick=async()=>{if(!needUser())return;const {error}=await sb.from("requests").insert({user_id:sessionUser.id,type:reqType.value,location:reqLocation.value,details:reqDetails.value});if(error)alert(error.message);else{reqDetails.value="";reqLocation.value="";refreshRequests()}};
+
+uploadPhoto.onclick=async()=>{if(!needUser())return;const f=photoFile.files[0];if(!f)return alert("Choose a photo.");uploadMsg.textContent="Uploading…";const ext=f.name.split(".").pop();const path=`${sessionUser.id}/${crypto.randomUUID()}.${ext}`;let {error}=await sb.storage.from("event-photos").upload(path,f,{contentType:f.type});if(error)return uploadMsg.textContent=error.message;const {data}=sb.storage.from("event-photos").getPublicUrl(path);({error}=await sb.from("photos").insert({user_id:sessionUser.id,storage_path:path,public_url:data.publicUrl,caption:photoCaption.value}));uploadMsg.textContent=error?error.message:"Photo uploaded.";photoFile.value="";photoCaption.value=""};
+
+sendAnnouncement.onclick=async()=>{if(!profile?.is_admin)return;const {error}=await sb.from("feed_posts").insert({user_id:sessionUser.id,body:announcement.value,is_announcement:true});if(error)alert(error.message);else announcement.value=""};
+
+async function refreshFeed(){const {data}=await sb.from("feed_posts_view").select("*").order("created_at",{ascending:false}).limit(100);feedList.innerHTML=data?.length?data.map(x=>`<div class="item"><b>${x.is_announcement?"Host Announcement":esc(x.display_name)}</b><div>${esc(x.body)}</div><div class="meta">${new Date(x.created_at).toLocaleString()}</div></div>`).join(""):'<p class="muted">No posts yet.</p>'}
+async function refreshChat(){const {data}=await sb.from("messages_view").select("*").order("created_at",{ascending:true}).limit(200);chatBox.innerHTML=data?.length?data.map(x=>`<div class="bubble"><b>${esc(x.display_name)}</b><br>${esc(x.body)}<div class="meta">${new Date(x.created_at).toLocaleTimeString()}</div></div>`).join(""):'<p class="muted">Start the conversation.</p>';chatBox.scrollTop=chatBox.scrollHeight}
+async function refreshRequests(){const q=profile?.is_admin?sb.from("requests_view").select("*").order("created_at",{ascending:false}):sb.from("requests_view").select("*").eq("user_id",sessionUser.id).order("created_at",{ascending:false});const {data}=await q;requestList.innerHTML=data?.length?data.map(x=>`<div class="item"><b>${esc(x.type)}</b><div>${esc(x.location)} ${esc(x.details)}</div><span class="status ${x.status==="Completed"?"completed":x.status==="Being Handled"?"progress":""}">${esc(x.status)}</span></div>`).join(""):'<p class="muted">No requests yet.</p>';if(profile?.is_admin)renderAdminRequests(data||[])}
+async function refreshPhotos(){const {data}=await sb.from("photos_view").select("*").eq("approved",true).order("created_at",{ascending:false}).limit(100);photoGrid.innerHTML=data?.length?data.map(x=>`<div class="photo"><img src="${x.public_url}" alt="Graduation photo"><b>${esc(x.display_name)}</b><div>${esc(x.caption)}</div></div>`).join(""):'<p class="muted">No photos yet.</p>';statPhotos.textContent=data?.length||0}
+async function refreshRsvps(){if(!profile?.is_admin)return;const {data}=await sb.from("rsvps_view").select("*").order("created_at",{ascending:false});statRsvp.textContent=data?.length||0;adminRsvps.innerHTML=data?.length?data.map(x=>`<div class="item"><b>${esc(x.display_name)}</b> — ${esc(x.status)}<div>${esc(x.phone)} | ${esc(x.dietary)}</div><div class="meta">${esc(x.note)}</div></div>`).join(""):'<p class="muted">No RSVPs yet.</p>'}
+function renderAdminRequests(data){statReq.textContent=data.length;adminRequests.innerHTML=data.length?data.map(x=>`<div class="item"><b>${esc(x.type)}</b> — ${esc(x.display_name)}<div>${esc(x.location)} ${esc(x.details)}</div><div class="inline"><button class="small" onclick="setStatus('${x.id}','Received')">Received</button><button class="small" onclick="setStatus('${x.id}','Being Handled')">Handling</button><button class="small" onclick="setStatus('${x.id}','Completed')">Completed</button></div></div>`).join(""):'<p class="muted">No requests yet.</p>'}
+window.setStatus=async(id,status)=>{if(!profile?.is_admin)return;await sb.from("requests").update({status}).eq("id",id);refreshRequests()};
+async function refreshAll(){await Promise.all([refreshFeed(),refreshChat(),refreshRequests(),refreshPhotos(),refreshRsvps()])}
+function subscribe(){["feed_posts","messages","requests","photos","rsvps"].forEach(t=>sb.channel("live-"+t).on("postgres_changes",{event:"*",schema:"public",table:t},refreshAll).subscribe())}
+init();
+</script>
+</body></html>
