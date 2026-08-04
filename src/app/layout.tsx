@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Toaster } from 'react-hot-toast'
+import { ToasterProvider } from '@/components/ui/ToasterProvider'
 import './globals.css'
 
 export const dynamic = 'force-dynamic'
@@ -25,15 +25,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         {children}
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            style: { background: '#071a3d', color: '#fff', borderRadius: '12px', fontWeight: 600 },
-            success: { iconTheme: { primary: '#c59a42', secondary: '#fff' } },
-            error: { iconTheme: { primary: '#ef4444', secondary: '#fff' } },
-          }}
-        />
+        <ToasterProvider />
       </body>
     </html>
   )
