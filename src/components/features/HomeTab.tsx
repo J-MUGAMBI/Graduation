@@ -21,8 +21,9 @@ export function HomeTab() {
   const supabase = useMemo(() => createClient(), [])
 
   const handleSave = async () => {
-    if (!user || !name.trim()) return
+    if (!name.trim()) return
     if (name.trim().length < 2) return toast.error('Name must be at least 2 characters.')
+    if (!user) return toast.error('Still connecting, please wait a moment and try again.')
     setSaving(true)
     const { error } = await (supabase as any).from('profiles').upsert({ id: user.id, display_name: name.trim() })
     setSaving(false)
@@ -77,7 +78,7 @@ export function HomeTab() {
             <div>
               <label className="label">Your full name</label>
               <input className="input" placeholder="e.g. Jane Wanjiku" value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSave()} />
-              <button onClick={handleSave} disabled={saving || !name.trim()} className="btn-primary mt-3 w-full flex items-center justify-center gap-2">
+              <button onClick={handleSave} disabled={saving} className="btn-primary mt-3 w-full flex items-center justify-center gap-2">
                 {saving ? <Spinner size="sm" /> : <GraduationCap className="w-4 h-4" />}
                 Enter GradConnect
               </button>

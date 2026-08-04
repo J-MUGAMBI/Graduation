@@ -1,4 +1,4 @@
 window.GRADCONNECT_CONFIG = {
-  supabaseUrl: "YOUR_SUPABASE_PROJECT_URL",
-  supabaseAnonKey: "YOUR_SUPABASE_ANON_KEY"
+  supabaseUrl: "https://bdexkgxpblxanapnaocn.supabase.co",
+  supabaseAnonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJkZXhrZ3hwYmx4YW5hcG5hb2NuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU0ODIyMDYsImV4cCI6MjEwMTA1ODIwNn0.SCbnh9PcKi7wIOAJ2MNRWrZ6G8sqME9pw12vv7Bm7bI"
 };
