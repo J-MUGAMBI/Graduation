@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next'
 import { Toaster } from 'react-hot-toast'
 import './globals.css'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: 'GradConnect | Joseph Mugambi',
   description: "Celebrate Joseph Mugambi's Master's in Data Science and Analytics graduation.",
