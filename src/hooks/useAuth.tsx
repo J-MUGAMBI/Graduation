@@ -19,9 +19,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = useMemo(() => createClient(), [])
+  const [configError, setConfigError] = useState(false)
+  const supabase = useMemo(() => {
+    try { return createClient() } catch { setConfigError(true); return null }
+  }, [])
 
   const refreshProfile = useCallback(async () => {
+    if (!supabase) return
     const { data: { user: u } } = await supabase.auth.getUser()
     if (!u) return
     const { data } = await (supabase as any).from('profiles').select('*').eq('id', u.id).maybeSingle()
@@ -29,6 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase])
 
   useEffect(() => {
+    if (!supabase) { setLoading(false); return }
     const init = async () => {
       let { data: { session } } = await supabase.auth.getSession()
       if (!session) {
@@ -49,6 +54,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })
     return () => subscription.unsubscribe()
   }, [supabase])
+
+  if (configError) return (
+    <AuthContext.Provider value={{ user: null, profile: null, loading: false, refreshProfile: async () => {} }}>
+      <div style={{padding:'2rem',textAlign:'center',color:'red',fontFamily:'monospace'}}>
+        <b>Configuration Error</b><br/>NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are not set.<br/>Add them in Netlify → Site configuration → Environment variables.
+      </div>
+    </AuthContext.Provider>
+  )
 
   return <AuthContext.Provider value={{ user, profile, loading, refreshProfile }}>{children}</AuthContext.Provider>
 }
