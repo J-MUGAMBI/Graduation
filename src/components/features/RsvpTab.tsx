@@ -24,7 +24,7 @@ export function RsvpTab() {
 
   useEffect(() => {
     if (!user) { setLoading(false); return }
-    supabase.from('rsvps').select('*').eq('user_id', user.id).maybeSingle().then(({ data }) => {
+    ;(supabase as any).from('rsvps').select('*').eq('user_id', user.id).maybeSingle().then(({ data }: { data: Rsvp | null }) => {
       if (data) {
         setExisting(data)
         setPhone(data.phone ?? '')
