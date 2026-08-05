@@ -33,9 +33,9 @@ export function HomeTab() {
   }
 
   const unit = (val: number, label: string) => (
-    <div className="flex flex-col items-center bg-navy-500 text-white rounded-2xl px-4 py-3 min-w-[64px]">
-      <span className="text-3xl font-black tabular-nums">{String(val).padStart(2, '0')}</span>
-      <span className="text-xs text-gold-300 font-bold uppercase tracking-wider">{label}</span>
+    <div className="flex flex-col items-center bg-navy-500 text-white rounded-2xl px-2 py-2 sm:px-4 sm:py-3 flex-1 min-w-0">
+      <span className="text-xl sm:text-3xl font-black tabular-nums">{String(val).padStart(2, '0')}</span>
+      <span className="text-[10px] sm:text-xs text-gold-300 font-bold uppercase tracking-wider">{label}</span>
     </div>
   )
 
@@ -77,7 +77,7 @@ export function HomeTab() {
           ) : (
             <div>
               <label className="label">Your full name</label>
-              <input className="input" placeholder="e.g. Jane Wanjiku" value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSave()} />
+              <input className="input" placeholder="Your full name" value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSave()} />
               <button onClick={handleSave} disabled={saving} className="btn-primary mt-3 w-full flex items-center justify-center gap-2">
                 {saving ? <Spinner size="sm" /> : <GraduationCap className="w-4 h-4" />}
                 Enter GradConnect
@@ -91,7 +91,7 @@ export function HomeTab() {
           {past ? (
             <p className="text-2xl font-black text-gold-500 text-center py-4">🎉 The celebration is here!</p>
           ) : (
-            <div className="flex gap-2 flex-wrap justify-center mt-2">
+            <div className="flex gap-1 sm:gap-2 mt-2 w-full">
               {unit(days, 'Days')}
               {unit(hours, 'Hours')}
               {unit(minutes, 'Mins')}
