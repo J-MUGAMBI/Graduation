@@ -29,10 +29,11 @@ export function DirectMessageTab() {
 
   const loadMessages = useCallback(async (otherId: string) => {
     const { data, error } = await (supabase as any)
-      .from('direct_messages_view').select('*')
+      .from('direct_messages')
+      .select('*')
       .or(`sender_id.eq.${user!.id},recipient_id.eq.${user!.id}`)
       .order('created_at', { ascending: true })
-    if (error) console.error('loadMessages', error)
+    if (error) { console.error('loadMessages', error); return }
     const filtered = (data ?? []).filter((m: DirectMessageView) =>
       (m.sender_id === user!.id && m.recipient_id === otherId) ||
       (m.sender_id === otherId && m.recipient_id === user!.id)
