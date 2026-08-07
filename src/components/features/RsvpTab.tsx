@@ -13,7 +13,7 @@ import type { Rsvp } from '@/types/database'
 export function RsvpTab() {
   const { user, profile } = useAuth()
   const [existing, setExisting] = useState<Rsvp | null>(null)
-  const [phone, setPhone] = useState('')
+  const [phone, setPhone] = useState('+254')
   const [status, setStatus] = useState('attending')
   const [dietary, setDietary] = useState('None')
   const [note, setNote] = useState('')
@@ -27,7 +27,7 @@ export function RsvpTab() {
     ;(supabase as any).from('rsvps').select('*').eq('user_id', user.id).maybeSingle().then(({ data }: { data: Rsvp | null }) => {
       if (data) {
         setExisting(data)
-        setPhone(data.phone ?? '')
+        setPhone(data.phone ?? '+254')
         setStatus(data.status)
         setDietary(data.dietary ?? 'None')
         setNote(data.note ?? '')
@@ -37,10 +37,13 @@ export function RsvpTab() {
     })
   }, [user, supabase])
 
+  const isValidPhone = (val: string) => /^\+254\d{9}$/.test(val.replace(/\s/g, ''))
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!profile) return toast.error('Please enter your name on the Home tab first.')
     if (!user) return
+    if (!isValidPhone(phone)) return toast.error('Enter a valid phone number: +254 followed by 9 digits.')
     setSaving(true)
     const { error } = await (supabase as any).from('rsvps').upsert(
       { user_id: user.id, phone, status, dietary, note, attendee_count: attendeeCount },
@@ -54,8 +57,18 @@ export function RsvpTab() {
 
   if (loading) return <div className="flex justify-center py-20"><Spinner size="lg" /></div>
 
+  const needsPhone = existing && (!existing.phone || !isValidPhone(existing.phone))
+
   return (
     <div className="space-y-6 animate-fade-in">
+      {needsPhone && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3">
+          <CheckSquare className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
+          <p className="text-sm text-red-700 font-medium">
+            ⚠️ Please update your RSVP with a valid phone number (+254 followed by 9 digits).
+          </p>
+        </div>
+      )}
       {existing && (
         <div className="bg-green-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3">
           <CheckSquare className="w-5 h-5 text-green-600 shrink-0" />
@@ -73,8 +86,19 @@ export function RsvpTab() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             <div>
-              <label className="label">Phone number</label>
-              <input className="input" type="tel" placeholder="+254 7XX XXX XXX" value={phone} onChange={e => setPhone(e.target.value)} />
+              <label className="label">Phone number <span className="text-red-500">*</span></label>
+              <input
+                className="input"
+                type="tel"
+                placeholder="+254 7XXXXXXXX"
+                value={phone}
+                onChange={e => {
+                  let val = e.target.value
+                  if (!val.startsWith('+254')) val = '+254'
+                  setPhone(val)
+                }}
+              />
+              <p className="text-xs text-gray-400 mt-1">Format: +254 followed by 9 digits</p>
             </div>
             <div>
               <label className="label">Attendance</label>

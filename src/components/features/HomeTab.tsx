@@ -20,9 +20,11 @@ export function HomeTab() {
   const { days, hours, minutes, seconds, past } = useCountdown()
   const supabase = useMemo(() => createClient(), [])
 
+  const hasTwoNames = (val: string) => val.trim().split(/\s+/).filter(Boolean).length >= 2
+
   const handleSave = async () => {
     if (!name.trim()) return
-    if (name.trim().length < 2) return toast.error('Name must be at least 2 characters.')
+    if (!hasTwoNames(name)) return toast.error('Please enter your first and last name.')
     if (!user) return toast.error('Still connecting, please wait a moment and try again.')
     setSaving(true)
     const { error } = await (supabase as any).from('profiles').upsert({ id: user.id, display_name: name.trim() })
@@ -45,7 +47,15 @@ export function HomeTab() {
         <div className="bg-gold-50 border border-gold-200 rounded-2xl p-4 flex items-start gap-3">
           <GraduationCap className="w-5 h-5 text-gold-600 mt-0.5 shrink-0" />
           <p className="text-sm text-gold-800 font-medium">
-            Welcome! Enter your name below to join the celebration and access all features.
+            Welcome! Enter your first and last name below to join the celebration and access all features.
+          </p>
+        </div>
+      )}
+      {profile && !hasTwoNames(profile.display_name) && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3">
+          <GraduationCap className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
+          <p className="text-sm text-red-700 font-medium">
+            ⚠️ Please update your name to include both your first and last name below.
           </p>
         </div>
       )}
@@ -77,7 +87,7 @@ export function HomeTab() {
           ) : (
             <div>
               <label className="label">Your full name</label>
-              <input className="input" placeholder="Your full name" value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSave()} />
+              <input className="input" placeholder="e.g. Jane Wanjiku" value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSave()} />
               <button onClick={handleSave} disabled={saving} className="btn-primary mt-3 w-full flex items-center justify-center gap-2">
                 {saving ? <Spinner size="sm" /> : <GraduationCap className="w-4 h-4" />}
                 Enter GradConnect
