@@ -28,13 +28,18 @@ export function DirectMessageTab() {
   }, [supabase])
 
   const loadMessages = useCallback(async (otherId: string) => {
+    // Fetch all messages involving current user — RLS ensures only own rows returned
     const { data, error } = await (supabase as any)
       .from('direct_messages')
       .select('*')
-      .or(`and(sender_id.eq.${user!.id},recipient_id.eq.${otherId}),and(sender_id.eq.${otherId},recipient_id.eq.${user!.id})`)
       .order('created_at', { ascending: true })
     if (error) { console.error('loadMessages error:', error); return }
-    setMessages(data ?? [])
+    // Filter client-side to this specific conversation
+    const convo = (data ?? []).filter((m: DirectMessage) =>
+      (m.sender_id === user!.id && m.recipient_id === otherId) ||
+      (m.sender_id === otherId && m.recipient_id === user!.id)
+    )
+    setMessages(convo)
     setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
   }, [supabase, user])
 
