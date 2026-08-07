@@ -28,6 +28,11 @@ export interface Database {
         Insert: { id?: string; user_id: string; type: string; location?: string | null; details?: string | null; status?: string }
         Update: { type?: string; location?: string | null; details?: string | null; status?: string }
       }
+      direct_messages: {
+        Row: { id: string; sender_id: string; recipient_id: string; body: string; created_at: string }
+        Insert: { id?: string; sender_id: string; recipient_id: string; body: string }
+        Update: { body?: string }
+      }
       photos: {
         Row: { id: string; user_id: string; storage_path: string; public_url: string; caption: string | null; approved: boolean; created_at: string }
         Insert: { id?: string; user_id: string; storage_path: string; public_url: string; caption?: string | null; approved?: boolean }
@@ -35,6 +40,7 @@ export interface Database {
       }
     }
     Views: {
+      direct_messages_view: { Row: { id: string; sender_id: string; recipient_id: string; body: string; created_at: string; sender_name: string; recipient_name: string } }
       feed_posts_view: { Row: { id: string; user_id: string; body: string; is_announcement: boolean; created_at: string; display_name: string } }
       messages_view: { Row: { id: string; user_id: string; body: string; created_at: string; display_name: string } }
       requests_view: { Row: { id: string; user_id: string; type: string; location: string | null; details: string | null; status: string; created_at: string; display_name: string } }
@@ -45,6 +51,8 @@ export interface Database {
   }
 }
 
+export type DirectMessage = Database['public']['Tables']['direct_messages']['Row']
+export type DirectMessageView = Database['public']['Views']['direct_messages_view']['Row']
 export type Profile = Database['public']['Tables']['profiles']['Row']
 export type Rsvp = Database['public']['Tables']['rsvps']['Row']
 export type FeedPost = Database['public']['Tables']['feed_posts']['Row']

@@ -97,17 +97,41 @@ const countdownEl=document.getElementById("countdown");countdown();setInterval(c
 
 async function init(){
  if(!sb)return;
- let {data:{session}}=await sb.auth.getSession();
- if(!session){const {data,error}=await sb.auth.signInAnonymously();if(error)return alert("Anonymous sign-in must be enabled in Supabase.");session=data.session}
+ identityMsg.textContent="Connecting…";
+ try{
+ let {data:{session},error:sErr}=await sb.auth.getSession();
+ if(sErr)throw sErr;
+ if(!session){
+ const {data,error}=await sb.auth.signInAnonymously();
+ if(error)throw error;
+ session=data.session;
+ }
  sessionUser=session.user;
+ identityMsg.textContent="Connected. Enter your name above.";
  await loadProfile(); await refreshAll(); subscribe();
+ }catch(e){
+ identityMsg.textContent="❌ Connection failed: "+e.message;
+ console.error("init error",e);
+ }
 }
 async function loadProfile(){
- const {data}=await sb.from("profiles").select("*").eq("id",sessionUser.id).maybeSingle();
+ const {data,error}=await sb.from("profiles").select("*").eq("id",sessionUser.id).maybeSingle();
+ if(error){identityMsg.textContent="❌ DB error: "+error.message;console.error("loadProfile",error);return;}
  profile=data||null;
- if(profile){guestName.value=profile.display_name||"";identityMsg.textContent=`Signed in as ${profile.display_name}`;if(profile.is_admin){adminPanel.classList.remove("hidden");adminAccess.textContent="Administrator access enabled."}}
+ if(profile){guestName.value=profile.display_name||"";identityMsg.textContent=`✅ Signed in as ${profile.display_name}`;if(profile.is_admin){adminPanel.classList.remove("hidden");adminAccess.textContent="Administrator access enabled."}}
+ else{identityMsg.textContent="Connected. Enter your name above.";}
 }
-saveName.onclick=async()=>{if(!sb)return;if(!guestName.value.trim())return;const row={id:sessionUser.id,display_name:guestName.value.trim()};const {error}=await sb.from("profiles").upsert(row);if(error)return alert(error.message);await loadProfile()};
+saveName.onclick=async()=>{
+ if(!sb)return;
+ if(!guestName.value.trim())return alert("Please enter your name.");
+ if(!sessionUser){identityMsg.textContent="Still connecting, please wait a moment…";return;}
+ const row={id:sessionUser.id,display_name:guestName.value.trim()};
+ saveName.disabled=true;saveName.textContent="Saving…";
+ const {error}=await sb.from("profiles").upsert(row);
+ saveName.disabled=false;saveName.textContent="Enter GradConnect";
+ if(error){alert("Save failed: "+error.message);console.error("upsert profiles",error);return;}
+ await loadProfile();
+};
 
 rsvpForm.onsubmit=async e=>{e.preventDefault();if(!needUser())return;const {error}=await sb.from("rsvps").upsert({user_id:sessionUser.id,phone:rsvpPhone.value,status:rsvpStatus.value,dietary:rsvpDiet.value,note:rsvpNote.value},{onConflict:"user_id"});rsvpMsg.textContent=error?error.message:"Your RSVP has been saved.";refreshRsvps()};
 

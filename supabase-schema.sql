@@ -145,3 +145,31 @@ alter publication supabase_realtime add table public.messages;
 alter publication supabase_realtime add table public.requests;
 alter publication supabase_realtime add table public.photos;
 alter publication supabase_realtime add table public.rsvps;
+
+-- ── Direct Messages ──────────────────────────────────────────
+
+create table if not exists public.direct_messages (
+  id uuid primary key default gen_random_uuid(),
+  sender_id uuid not null references auth.users(id) on delete cascade,
+  recipient_id uuid not null references auth.users(id) on delete cascade,
+  body text not null check (char_length(body) between 1 and 1000),
+  created_at timestamptz not null default now()
+);
+
+alter table public.direct_messages enable row level security;
+
+create policy "dm send" on public.direct_messages for insert to authenticated
+  with check (sender_id = auth.uid());
+
+create policy "dm read" on public.direct_messages for select to authenticated
+  using (sender_id = auth.uid() or recipient_id = auth.uid());
+
+create or replace view public.direct_messages_view with (security_invoker=true) as
+  select dm.*,
+    sp.display_name as sender_name,
+    rp.display_name as recipient_name
+  from public.direct_messages dm
+  join public.profiles sp on sp.id = dm.sender_id
+  join public.profiles rp on rp.id = dm.recipient_id;
+
+alter publication supabase_realtime add table public.direct_messages;

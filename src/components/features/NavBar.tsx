@@ -1,6 +1,6 @@
 'use client'
 
-import { Home, CheckSquare, Rss, MessageCircle, Bell, Image, LayoutDashboard } from 'lucide-react'
+import { Home, CheckSquare, Rss, MessageCircle, Bell, Image, LayoutDashboard, Mail } from 'lucide-react'
 
 const TABS = [
   { id: 'home', label: 'Home', icon: Home },
@@ -9,6 +9,7 @@ const TABS = [
   { id: 'chat', label: 'Chat', icon: MessageCircle },
   { id: 'requests', label: 'Requests', icon: Bell },
   { id: 'gallery', label: 'Gallery', icon: Image },
+  { id: 'dm', label: 'Messages', icon: Mail },
   { id: 'admin', label: 'Host', icon: LayoutDashboard },
 ]
 
@@ -23,7 +24,7 @@ export function NavBar({ active, isAdmin, onTabChange }: Props) {
   return (
     <nav className="sticky top-0 z-30 bg-white shadow-sm border-b border-gray-100">
       <div className="max-w-6xl mx-auto px-2">
-        <div className="grid grid-cols-7 sm:flex sm:flex-wrap gap-0.5 py-2">
+        <div className="grid grid-cols-8 sm:flex sm:flex-wrap gap-0.5 py-2">
           {visible.map(({ id, label, icon: Icon }) => (
             <button
               key={id}

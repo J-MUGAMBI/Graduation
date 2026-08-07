@@ -10,6 +10,7 @@ import { FeedTab } from '@/components/features/FeedTab'
 import { ChatTab } from '@/components/features/ChatTab'
 import { RequestsTab } from '@/components/features/RequestsTab'
 import { GalleryTab } from '@/components/features/GalleryTab'
+import { DirectMessageTab } from '@/components/features/DirectMessageTab'
 import { AdminTab } from '@/components/features/AdminTab'
 import { Spinner } from '@/components/ui/Spinner'
 
@@ -35,6 +36,7 @@ function AppContent() {
     chat: <ChatTab />,
     requests: <RequestsTab />,
     gallery: <GalleryTab />,
+    dm: <DirectMessageTab />,
     admin: <AdminTab />,
   }
 
