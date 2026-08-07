@@ -78,7 +78,7 @@ export function HomeTab() {
               </div>
               <div>
                 <label className="label">Update your name</label>
-                <input className="input" value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSave()} />
+                <input id="display-name" name="display_name" className="input" value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSave()} />
                 <button onClick={handleSave} disabled={saving} className="btn-primary mt-3 w-full flex items-center justify-center gap-2">
                   {saving ? <Spinner size="sm" /> : null} Update Name
                 </button>
@@ -87,7 +87,7 @@ export function HomeTab() {
           ) : (
             <div>
               <label className="label">Your full name</label>
-              <input className="input" placeholder="e.g. Jane Wanjiku" value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSave()} />
+              <input id="display-name" name="display_name" className="input" placeholder="e.g. Jane Wanjiku" value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSave()} />
               <button onClick={handleSave} disabled={saving} className="btn-primary mt-3 w-full flex items-center justify-center gap-2">
                 {saving ? <Spinner size="sm" /> : <GraduationCap className="w-4 h-4" />}
                 Enter GradConnect

@@ -7,13 +7,13 @@ import { MessageCircle, Send, ChevronLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { Spinner } from '@/components/ui/Spinner'
-import type { Profile, DirectMessageView } from '@/types/database'
+import type { Profile, DirectMessage } from '@/types/database'
 
 export function DirectMessageTab() {
   const { user, profile } = useAuth()
   const [guests, setGuests] = useState<Profile[]>([])
   const [selectedGuest, setSelectedGuest] = useState<Profile | null>(null)
-  const [messages, setMessages] = useState<DirectMessageView[]>([])
+  const [messages, setMessages] = useState<DirectMessage[]>([])
   const [body, setBody] = useState('')
   const [sending, setSending] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -31,14 +31,10 @@ export function DirectMessageTab() {
     const { data, error } = await (supabase as any)
       .from('direct_messages')
       .select('*')
-      .or(`sender_id.eq.${user!.id},recipient_id.eq.${user!.id}`)
+      .or(`and(sender_id.eq.${user!.id},recipient_id.eq.${otherId}),and(sender_id.eq.${otherId},recipient_id.eq.${user!.id})`)
       .order('created_at', { ascending: true })
-    if (error) { console.error('loadMessages', error); return }
-    const filtered = (data ?? []).filter((m: DirectMessageView) =>
-      (m.sender_id === user!.id && m.recipient_id === otherId) ||
-      (m.sender_id === otherId && m.recipient_id === user!.id)
-    )
-    setMessages(filtered)
+    if (error) { console.error('loadMessages error:', error); return }
+    setMessages(data ?? [])
     setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
   }, [supabase, user])
 
@@ -161,7 +157,7 @@ export function DirectMessageTab() {
   )
 }
 
-function ChatWindow({ messages, userId, bottomRef }: { messages: DirectMessageView[]; userId: string; bottomRef: React.RefObject<HTMLDivElement | null> }) {
+function ChatWindow({ messages, userId, bottomRef }: { messages: DirectMessage[]; userId: string; bottomRef: React.RefObject<HTMLDivElement | null> }) {
   return (
     <div className="flex-1 overflow-y-auto space-y-2 px-1 mb-3">
       {messages.length === 0 ? (

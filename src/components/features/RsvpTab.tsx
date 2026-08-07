@@ -65,7 +65,7 @@ export function RsvpTab() {
         <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3">
           <CheckSquare className="w-5 h-5 text-red-500 mt-0.5 shrink-0" />
           <p className="text-sm text-red-700 font-medium">
-            ⚠️ Please update your RSVP with a valid phone number (+254 followed by 9 digits).
+            ⚠️ Please update your RSVP with a valid phone number.
           </p>
         </div>
       )}
@@ -88,6 +88,8 @@ export function RsvpTab() {
             <div>
               <label className="label">Phone number <span className="text-red-500">*</span></label>
               <input
+                id="phone"
+                name="phone"
                 className="input"
                 type="tel"
                 placeholder="+254 7XXXXXXXX"
@@ -102,7 +104,7 @@ export function RsvpTab() {
             </div>
             <div>
               <label className="label">Attendance</label>
-              <select className="input" value={status} onChange={e => setStatus(e.target.value)}>
+              <select id="status" name="status" className="input" value={status} onChange={e => setStatus(e.target.value)}>
                 <option value="attending">✅ Yes, I will attend</option>
                 <option value="declined">❌ No, I cannot attend</option>
                 <option value="maybe">🤔 Maybe</option>
@@ -113,11 +115,11 @@ export function RsvpTab() {
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="label flex items-center gap-1"><Users className="w-4 h-4" /> Number of attendees</label>
-              <input className="input" type="number" min={1} max={10} value={attendeeCount} onChange={e => setAttendeeCount(Number(e.target.value))} />
+              <input id="attendee-count" name="attendee_count" className="input" type="number" min={1} max={10} value={attendeeCount} onChange={e => setAttendeeCount(Number(e.target.value))} />
             </div>
             <div>
               <label className="label">Dietary preference</label>
-              <select className="input" value={dietary} onChange={e => setDietary(e.target.value)}>
+              <select id="dietary" name="dietary" className="input" value={dietary} onChange={e => setDietary(e.target.value)}>
                 {['None', 'Vegetarian', 'Vegan', 'Halal', 'Gluten-free', 'Other'].map(d => <option key={d}>{d}</option>)}
               </select>
             </div>
@@ -125,7 +127,7 @@ export function RsvpTab() {
 
           <div>
             <label className="label">Special requests or notes</label>
-            <textarea className="input min-h-[80px] resize-none" placeholder="Any special requirements..." value={note} onChange={e => setNote(e.target.value)} />
+            <textarea id="note" name="note" className="input min-h-[80px] resize-none" placeholder="Any special requirements..." value={note} onChange={e => setNote(e.target.value)} />
           </div>
 
           <button type="submit" disabled={saving} className="btn-primary w-full flex items-center justify-center gap-2">
