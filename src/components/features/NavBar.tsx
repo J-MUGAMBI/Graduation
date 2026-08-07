@@ -16,10 +16,11 @@ const TABS = [
 interface Props {
   active: string
   isAdmin: boolean
+  unreadDm: boolean
   onTabChange: (tab: string) => void
 }
 
-export function NavBar({ active, isAdmin, onTabChange }: Props) {
+export function NavBar({ active, isAdmin, unreadDm, onTabChange }: Props) {
   const visible = TABS.filter(t => t.id !== 'admin' || isAdmin)
   return (
     <nav className="sticky top-0 z-30 bg-white shadow-sm border-b border-gray-100">
@@ -29,13 +30,18 @@ export function NavBar({ active, isAdmin, onTabChange }: Props) {
             <button
               key={id}
               onClick={() => onTabChange(id)}
-              className={`flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 px-1 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-full text-[9px] sm:text-sm font-bold transition-all duration-150 ${
+              className={`relative flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 px-1 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-full text-[9px] sm:text-sm font-bold transition-all duration-150 ${
                 active === id
                   ? 'bg-navy-500 text-white shadow-md'
                   : 'text-navy-400 hover:bg-cream hover:text-navy-500'
               }`}
             >
-              <Icon className="w-4 h-4" />
+              <span className="relative">
+                <Icon className="w-4 h-4" />
+                {id === 'dm' && unreadDm && (
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-white" />
+                )}
+              </span>
               <span className="leading-tight text-center">{label}</span>
             </button>
           ))}

@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { AuthProvider, useAuth } from '@/hooks/useAuth'
+import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/features/Header'
 import { NavBar } from '@/components/features/NavBar'
 import { HomeTab } from '@/components/features/HomeTab'
@@ -15,8 +16,38 @@ import { AdminTab } from '@/components/features/AdminTab'
 import { Spinner } from '@/components/ui/Spinner'
 
 function AppContent() {
-  const { loading, profile } = useAuth()
+  const { loading, profile, user } = useAuth()
   const [activeTab, setActiveTab] = useState('home')
+  const [unreadDm, setUnreadDm] = useState(false)
+  const supabase = useMemo(() => createClient(), [])
+
+  // Track unread DMs — messages where recipient is current user, received after last visit
+  useEffect(() => {
+    if (!user || !profile || profile.is_admin) return
+    const checkUnread = async () => {
+      const lastSeen = localStorage.getItem('dm_last_seen_' + user.id) ?? '1970-01-01'
+      const { data } = await (supabase as any)
+        .from('direct_messages')
+        .select('id')
+        .eq('recipient_id', user.id)
+        .gt('created_at', lastSeen)
+        .limit(1)
+      setUnreadDm((data?.length ?? 0) > 0)
+    }
+    checkUnread()
+    const channel = supabase.channel('unread-dm')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'direct_messages' }, checkUnread)
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [user, profile, supabase])
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab)
+    if (tab === 'dm' && user) {
+      localStorage.setItem('dm_last_seen_' + user.id, new Date().toISOString())
+      setUnreadDm(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -43,7 +74,7 @@ function AppContent() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      <NavBar active={activeTab} isAdmin={profile?.is_admin ?? false} onTabChange={setActiveTab} />
+      <NavBar active={activeTab} isAdmin={profile?.is_admin ?? false} unreadDm={unreadDm} onTabChange={handleTabChange} />
       <main className="flex-1 max-w-6xl mx-auto w-full px-4 py-6">
         {tabs[activeTab]}
       </main>
