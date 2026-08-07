@@ -15,24 +15,24 @@ const CONFETTI_COLORS = ['bg-gold-400', 'bg-navy-400', 'bg-pink-400', 'bg-emeral
 
 function FlowerRing() {
   const positions = [
-    { top: '8%',  left: '4%',  anim: 'animate-blink-flower',   size: 'text-2xl', delay: '' },
-    { top: '5%',  left: '18%', anim: 'animate-blink-flower-2', size: 'text-xl',  delay: '' },
-    { top: '12%', left: '32%', anim: 'animate-blink-flower-3', size: 'text-3xl', delay: '' },
-    { top: '5%',  left: '50%', anim: 'animate-blink-flower',   size: 'text-2xl', delay: '' },
-    { top: '10%', left: '65%', anim: 'animate-blink-flower-2', size: 'text-xl',  delay: '' },
-    { top: '6%',  left: '80%', anim: 'animate-blink-flower-3', size: 'text-3xl', delay: '' },
-    { top: '5%',  left: '93%', anim: 'animate-blink-flower',   size: 'text-2xl', delay: '' },
-    { top: '88%', left: '3%',  anim: 'animate-blink-flower-2', size: 'text-2xl', delay: '' },
-    { top: '85%', left: '16%', anim: 'animate-blink-flower-3', size: 'text-xl',  delay: '' },
-    { top: '90%', left: '30%', anim: 'animate-blink-flower',   size: 'text-3xl', delay: '' },
-    { top: '86%', left: '50%', anim: 'animate-blink-flower-2', size: 'text-2xl', delay: '' },
-    { top: '88%', left: '68%', anim: 'animate-blink-flower-3', size: 'text-xl',  delay: '' },
-    { top: '84%', left: '82%', anim: 'animate-blink-flower',   size: 'text-3xl', delay: '' },
-    { top: '87%', left: '95%', anim: 'animate-blink-flower-2', size: 'text-2xl', delay: '' },
-    { top: '35%', left: '1%',  anim: 'animate-blink-flower-3', size: 'text-xl',  delay: '' },
-    { top: '55%', left: '2%',  anim: 'animate-blink-flower',   size: 'text-2xl', delay: '' },
-    { top: '35%', left: '97%', anim: 'animate-blink-flower-2', size: 'text-xl',  delay: '' },
-    { top: '55%', left: '96%', anim: 'animate-blink-flower-3', size: 'text-2xl', delay: '' },
+    { top: '6%',  left: '5%',  anim: 'animate-blink-flower',   size: 'text-lg sm:text-2xl' },
+    { top: '4%',  left: '18%', anim: 'animate-blink-flower-2', size: 'text-base sm:text-xl' },
+    { top: '8%',  left: '32%', anim: 'animate-blink-flower-3', size: 'text-xl sm:text-3xl' },
+    { top: '4%',  left: '50%', anim: 'animate-blink-flower',   size: 'text-lg sm:text-2xl' },
+    { top: '7%',  left: '65%', anim: 'animate-blink-flower-2', size: 'text-base sm:text-xl' },
+    { top: '5%',  left: '78%', anim: 'animate-blink-flower-3', size: 'text-xl sm:text-3xl' },
+    { top: '6%',  left: '90%', anim: 'animate-blink-flower',   size: 'text-lg sm:text-2xl' },
+    { top: '86%', left: '5%',  anim: 'animate-blink-flower-2', size: 'text-lg sm:text-2xl' },
+    { top: '83%', left: '18%', anim: 'animate-blink-flower-3', size: 'text-base sm:text-xl' },
+    { top: '88%', left: '32%', anim: 'animate-blink-flower',   size: 'text-xl sm:text-3xl' },
+    { top: '85%', left: '50%', anim: 'animate-blink-flower-2', size: 'text-lg sm:text-2xl' },
+    { top: '87%', left: '65%', anim: 'animate-blink-flower-3', size: 'text-base sm:text-xl' },
+    { top: '84%', left: '78%', anim: 'animate-blink-flower',   size: 'text-xl sm:text-3xl' },
+    { top: '86%', left: '90%', anim: 'animate-blink-flower-2', size: 'text-lg sm:text-2xl' },
+    { top: '35%', left: '3%',  anim: 'animate-blink-flower-3', size: 'text-base sm:text-xl' },
+    { top: '55%', left: '3%',  anim: 'animate-blink-flower',   size: 'text-lg sm:text-2xl' },
+    { top: '35%', left: '91%', anim: 'animate-blink-flower-2', size: 'text-base sm:text-xl' },
+    { top: '55%', left: '91%', anim: 'animate-blink-flower-3', size: 'text-lg sm:text-2xl' },
   ]
   return (
     <>
@@ -70,7 +70,7 @@ function ConfettiPieces() {
 
 function HeroBanner() {
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-navy-600 via-navy-500 to-navy-700 p-8 sm:p-12 text-center shadow-2xl border-2 border-gold-400">
+    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-navy-600 via-navy-500 to-navy-700 p-6 sm:p-12 text-center shadow-2xl border-2 border-gold-400 min-h-[320px] sm:min-h-0">
       {/* Radial glow */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(197,154,66,0.18)_0%,transparent_70%)] pointer-events-none" />
 
@@ -81,12 +81,12 @@ function HeroBanner() {
       <FlowerRing />
 
       {/* Stars */}
-      <span className="absolute top-[20%] left-[8%]  text-gold-300 text-lg animate-star-pulse">✦</span>
-      <span className="absolute top-[25%] right-[8%] text-gold-300 text-lg animate-star-pulse" style={{animationDelay:'0.7s'}}>✦</span>
-      <span className="absolute top-[70%] left-[12%] text-gold-200 text-sm animate-star-pulse" style={{animationDelay:'1.1s'}}>✧</span>
-      <span className="absolute top-[65%] right-[12%] text-gold-200 text-sm animate-star-pulse" style={{animationDelay:'0.4s'}}>✧</span>
-      <span className="absolute top-[45%] left-[5%]  text-gold-400 text-xs animate-star-pulse" style={{animationDelay:'1.5s'}}>★</span>
-      <span className="absolute top-[45%] right-[5%] text-gold-400 text-xs animate-star-pulse" style={{animationDelay:'0.9s'}}>★</span>
+      <span className="absolute top-[20%] left-[8%]  text-gold-300 text-base sm:text-lg animate-star-pulse">✦</span>
+      <span className="absolute top-[25%] right-[8%] text-gold-300 text-base sm:text-lg animate-star-pulse" style={{animationDelay:'0.7s'}}>✦</span>
+      <span className="absolute top-[70%] left-[10%] text-gold-200 text-sm animate-star-pulse" style={{animationDelay:'1.1s'}}>✧</span>
+      <span className="absolute top-[65%] right-[10%] text-gold-200 text-sm animate-star-pulse" style={{animationDelay:'0.4s'}}>✧</span>
+      <span className="absolute top-[45%] left-[6%]  text-gold-400 text-xs animate-star-pulse" style={{animationDelay:'1.5s'}}>★</span>
+      <span className="absolute top-[45%] right-[6%] text-gold-400 text-xs animate-star-pulse" style={{animationDelay:'0.9s'}}>★</span>
 
       {/* Main content */}
       <div className="relative z-10 space-y-4">
@@ -113,7 +113,7 @@ function HeroBanner() {
         </div>
 
         {/* Degree */}
-        <div className="bg-white/10 backdrop-blur-sm border border-gold-400/40 rounded-2xl px-6 py-3 inline-block">
+        <div className="bg-white/10 border border-gold-400/40 rounded-2xl px-4 sm:px-6 py-3 inline-block">
           <p className="text-gold-200 text-sm sm:text-base font-bold">Data Science &amp; Analytics</p>
           <p className="text-white/60 text-xs mt-0.5">Saturday, 15 August 2026 · Nairobi Club</p>
         </div>
@@ -156,6 +156,17 @@ export function HomeTab() {
     if (!hasTwoNames(name)) return toast.error('Please enter your first and last name.')
     if (!user) return toast.error('Still connecting, please wait a moment and try again.')
     setSaving(true)
+    // Check for duplicate name (case-insensitive), excluding current user
+    const { data: existing } = await (supabase as any)
+      .from('profiles')
+      .select('id')
+      .ilike('display_name', name.trim())
+      .neq('id', user.id)
+      .maybeSingle()
+    if (existing) {
+      setSaving(false)
+      return toast.error(`"${name.trim()}" is already taken. Please use a different name.`)
+    }
     const { error } = await (supabase as any).from('profiles').upsert({ id: user.id, display_name: name.trim() })
     setSaving(false)
     if (error) return toast.error(error.message)
