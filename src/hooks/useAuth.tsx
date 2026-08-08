@@ -55,7 +55,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .from('profiles').select('*').ilike('display_name', name.trim()).maybeSingle()
 
     if (existing) {
-      // Returning user — verify PIN via security definer RPC
+      if (!existing.pin) {
+        // Existing user with no PIN yet — set their PIN now (first-time PIN setup)
+        await (supabase as any).rpc('verify_pin', { p_name: name.trim(), p_pin: pin }) // no-op, just for consistency
+        await (supabase as any).from('profiles').update({ pin }).eq('id', existing.id)
+        localStorage.setItem(PROFILE_KEY, existing.id)
+        setProfile({ ...existing, pin })
+        return 'returning'
+      }
+      // Returning user with PIN — verify it
       const { data: verified } = await (supabase as any).rpc('verify_pin', { p_name: name.trim(), p_pin: pin })
       if (!verified || verified.length === 0) return 'wrong_pin'
       localStorage.setItem(PROFILE_KEY, existing.id)

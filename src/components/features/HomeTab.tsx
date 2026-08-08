@@ -89,9 +89,9 @@ export function HomeTab() {
             <div>
               <label className="label">Your full name</label>
               <input id="display-name" name="display_name" className="input" value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSave()} />
-              <label className="label mt-3">Choose a 4-digit PIN</label>
-              <input id="pin" name="pin" type="password" inputMode="numeric" maxLength={4} className="input" placeholder="e.g. 1234" value={pin} onChange={e => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))} onKeyDown={e => e.key === 'Enter' && handleSave()} />
-              <p className="text-xs text-gray-400 mt-1">You'll need this PIN to sign in from other devices.</p>
+              <label className="label mt-3">4-digit PIN</label>
+              <input id="pin" name="pin" type="password" inputMode="numeric" maxLength={4} className="input" placeholder="Choose a PIN (you'll need it to sign in)" value={pin} onChange={e => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))} onKeyDown={e => e.key === 'Enter' && handleSave()} />
+              <p className="text-xs text-gray-400 mt-1">New here? Choose any 4-digit PIN. Returning? Enter your PIN.</p>
               <button onClick={handleSave} disabled={saving} className="btn-primary mt-3 w-full flex items-center justify-center gap-2">
                 {saving ? <Spinner size="sm" /> : <GraduationCap className="w-4 h-4" />}
                 Enter GradConnect
