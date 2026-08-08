@@ -107,7 +107,7 @@ function HeroBanner() {
           </h1>
           <div className="flex items-center justify-center gap-2 mt-1">
             <span className="h-px w-12 bg-gold-400 opacity-60" />
-            <span className="text-gold-300 text-xs sm:text-sm font-bold tracking-widest uppercase">Master of Science</span>
+            <span className="text-gold-300 text-xs sm:text-sm font-bold tracking-widest uppercase">Masters in Data Science & Analytics</span>
             <span className="h-px w-12 bg-gold-400 opacity-60" />
           </div>
         </div>
