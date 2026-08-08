@@ -61,7 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase])
 
   if (configError) return (
-    <AuthContext.Provider value={{ user: null, profile: null, loading: false, refreshProfile: async () => {} }}>
+    <AuthContext.Provider value={{ user: null, profile: null, loading: false, supabase: null, refreshProfile: async () => {} }}>
       <div style={{padding:'2rem',textAlign:'center',color:'red',fontFamily:'monospace'}}>
         <b>Configuration Error</b><br/>NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are not set.<br/>Add them in Netlify → Site configuration → Environment variables.
       </div>
