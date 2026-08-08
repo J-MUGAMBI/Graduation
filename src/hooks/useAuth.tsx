@@ -10,10 +10,11 @@ interface AuthContextType {
   user: User | null
   profile: Profile | null
   loading: boolean
+  supabase: ReturnType<typeof createClient> | null
   refreshProfile: () => Promise<void>
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, profile: null, loading: true, refreshProfile: async () => {} })
+const AuthContext = createContext<AuthContextType>({ user: null, profile: null, loading: true, supabase: null, refreshProfile: async () => {} })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -49,8 +50,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     init()
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null)
+      if (session?.user) {
+        const { data } = await (supabase as any).from('profiles').select('*').eq('id', session.user.id).maybeSingle()
+        setProfile(data)
+      }
     })
     return () => subscription.unsubscribe()
   }, [supabase])
@@ -63,7 +68,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     </AuthContext.Provider>
   )
 
-  return <AuthContext.Provider value={{ user, profile, loading, refreshProfile }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ user, profile, loading, supabase, refreshProfile }}>{children}</AuthContext.Provider>
 }
 
 export const useAuth = () => useContext(AuthContext)

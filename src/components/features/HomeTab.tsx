@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { toast } from 'react-hot-toast'
 import { UserCircle, GraduationCap } from 'lucide-react'
-import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { useCountdown } from '@/hooks/useCountdown'
 import { Spinner } from '@/components/ui/Spinner'
@@ -139,7 +138,7 @@ function HeroBanner() {
 }
 
 export function HomeTab() {
-  const { user, profile, refreshProfile } = useAuth()
+  const { user, profile, refreshProfile, supabase } = useAuth()
   const [name, setName] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -147,27 +146,32 @@ export function HomeTab() {
     if (profile?.display_name) setName(profile.display_name)
   }, [profile?.display_name])
   const { days, hours, minutes, seconds, past } = useCountdown()
-  const supabase = useMemo(() => createClient(), [])
 
   const hasTwoNames = (val: string) => val.trim().split(/\s+/).filter(Boolean).length >= 2
 
   const handleSave = async () => {
     if (!name.trim()) return
     if (!hasTwoNames(name)) return toast.error('Please enter your first and last name.')
-    if (!user) return toast.error('Still connecting, please wait a moment and try again.')
     setSaving(true)
+    // Ensure we have a live session before writing
+    const { data: { session } } = await supabase!.auth.getSession()
+    const uid = session?.user?.id
+    if (!uid) {
+      setSaving(false)
+      return toast.error('Still connecting, please wait a moment and try again.')
+    }
     // Check for duplicate name (case-insensitive), excluding current user
     const { data: existing } = await (supabase as any)
       .from('profiles')
       .select('id')
       .ilike('display_name', name.trim())
-      .neq('id', user.id)
+      .neq('id', uid)
       .maybeSingle()
     if (existing) {
       setSaving(false)
       return toast.error(`"${name.trim()}" is already taken. Please use a different name.`)
     }
-    const { error } = await (supabase as any).from('profiles').upsert({ id: user.id, display_name: name.trim() })
+    const { error } = await (supabase as any).from('profiles').upsert({ id: uid, display_name: name.trim() })
     setSaving(false)
     if (error) return toast.error(error.message)
     await refreshProfile()
