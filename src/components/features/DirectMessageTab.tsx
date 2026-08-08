@@ -28,20 +28,18 @@ export function DirectMessageTab() {
   }, [supabase])
 
   const loadMessages = useCallback(async (otherId: string) => {
-    // Fetch all messages involving current user — RLS ensures only own rows returned
     const { data, error } = await (supabase as any)
       .from('direct_messages')
       .select('*')
       .order('created_at', { ascending: true })
     if (error) { console.error('loadMessages error:', error); return }
-    // Filter client-side to this specific conversation
     const convo = (data ?? []).filter((m: DirectMessage) =>
-      (m.sender_id === user!.id && m.recipient_id === otherId) ||
-      (m.sender_id === otherId && m.recipient_id === user!.id)
+      (m.sender_id === profile!.id && m.recipient_id === otherId) ||
+      (m.sender_id === otherId && m.recipient_id === profile!.id)
     )
     setMessages(convo)
     setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
-  }, [supabase, user])
+  }, [supabase, profile])
 
   useEffect(() => {
     if (!user || !profile) return
@@ -77,10 +75,10 @@ export function DirectMessageTab() {
   }, [user, profile, supabase])
 
   const send = async () => {
-    if (!body.trim() || !user || !selectedGuest) return
+    if (!body.trim() || !profile || !selectedGuest) return
     setSending(true)
     const { error } = await (supabase as any).from('direct_messages').insert({
-      sender_id: user.id,
+      sender_id: profile.id,
       recipient_id: selectedGuest.id,
       body: body.trim(),
     })
@@ -111,7 +109,7 @@ export function DirectMessageTab() {
           <MessageCircle className="w-5 h-5 text-gold-500" />
           <span className="font-black text-navy-500">Private message with Host</span>
         </div>
-        <ChatWindow messages={messages} userId={user!.id} bottomRef={bottomRef} />
+        <ChatWindow messages={messages} userId={profile!.id} bottomRef={bottomRef} />
         <ChatInput body={body} setBody={setBody} send={send} sending={sending} />
       </div>
     )
@@ -154,7 +152,7 @@ export function DirectMessageTab() {
             </div>
             <span className="font-black text-navy-500">{selectedGuest.display_name}</span>
           </div>
-          <ChatWindow messages={messages} userId={user!.id} bottomRef={bottomRef} />
+          <ChatWindow messages={messages} userId={profile!.id} bottomRef={bottomRef} />
           <ChatInput body={body} setBody={setBody} send={send} sending={sending} />
         </div>
       )}

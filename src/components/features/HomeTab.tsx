@@ -9,7 +9,7 @@ import { useCountdown } from '@/hooks/useCountdown'
 import { Spinner } from '@/components/ui/Spinner'
 
 export function HomeTab() {
-  const { user, profile, refreshProfile, supabase } = useAuth()
+  const { profile, signInWithName } = useAuth()
   const [name, setName] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -24,17 +24,10 @@ export function HomeTab() {
     if (!name.trim()) return
     if (!hasTwoNames(name)) return toast.error('Please enter your first and last name.')
     setSaving(true)
-    const { data: { session } } = await supabase!.auth.getSession()
-    const uid = session?.user?.id
-    if (!uid) {
-      setSaving(false)
-      return toast.error('Still connecting, please wait a moment and try again.')
-    }
-    const { error } = await (supabase as any).from('profiles').upsert({ id: uid, display_name: name.trim() })
+    const result = await signInWithName(name.trim())
     setSaving(false)
-    if (error) return toast.error(error.message)
-    await refreshProfile()
-    toast.success(`Welcome, ${name.trim()}! 🎓`)
+    if (result === 'error') return toast.error('Still connecting, please wait a moment and try again.')
+    toast.success(`Welcome${result === 'returning' ? ' back' : ''}, ${name.trim()}! 🎓`)
   }
 
   const unit = (val: number, label: string) => (

@@ -6,15 +6,22 @@ import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 import type { Profile } from '@/types/database'
 
+const PROFILE_KEY = 'gc_profile_id'
+
 interface AuthContextType {
   user: User | null
   profile: Profile | null
   loading: boolean
   supabase: ReturnType<typeof createClient> | null
   refreshProfile: () => Promise<void>
+  signInWithName: (name: string) => Promise<'new' | 'returning' | 'error'>
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, profile: null, loading: true, supabase: null, refreshProfile: async () => {} })
+const AuthContext = createContext<AuthContextType>({
+  user: null, profile: null, loading: true, supabase: null,
+  refreshProfile: async () => {},
+  signInWithName: async () => 'error',
+})
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
@@ -27,11 +34,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshProfile = useCallback(async () => {
     if (!supabase) return
+    // Prefer the pinned profile id from localStorage
+    const pinnedId = localStorage.getItem(PROFILE_KEY)
     const { data: { user: u } } = await supabase.auth.getUser()
-    if (!u) return
-    const { data } = await (supabase as any).from('profiles').select('*').eq('id', u.id).maybeSingle()
+    const lookupId = pinnedId ?? u?.id
+    if (!lookupId) return
+    const { data } = await (supabase as any).from('profiles').select('*').eq('id', lookupId).maybeSingle()
     setProfile(data)
   }, [supabase])
+
+  // Sign in by name: returns 'returning' if name matched existing profile, 'new' if created
+  const signInWithName = useCallback(async (name: string): Promise<'new' | 'returning' | 'error'> => {
+    if (!supabase) return 'error'
+    const { data: { session } } = await supabase.auth.getSession()
+    const uid = session?.user?.id
+    if (!uid) return 'error'
+
+    // Check if this name already exists
+    const { data: existing } = await (supabase as any)
+      .from('profiles').select('*').ilike('display_name', name.trim()).maybeSingle()
+
+    if (existing) {
+      // Returning user — pin their original profile id
+      localStorage.setItem(PROFILE_KEY, existing.id)
+      setProfile(existing)
+      return 'returning'
+    }
+
+    // New user — create profile with current anon uid
+    localStorage.setItem(PROFILE_KEY, uid)
+    const { error } = await (supabase as any).from('profiles').upsert({ id: uid, display_name: name.trim() })
+    if (error) return 'error'
+    await refreshProfile()
+    return 'new'
+  }, [supabase, refreshProfile])
 
   useEffect(() => {
     if (!supabase) { setLoading(false); return }
@@ -43,7 +79,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       setUser(session?.user ?? null)
       if (session?.user) {
-        const { data } = await (supabase as any).from('profiles').select('*').eq('id', session.user.id).maybeSingle()
+        // Load pinned profile if exists, else load by session uid
+        const pinnedId = localStorage.getItem(PROFILE_KEY)
+        const lookupId = pinnedId ?? session.user.id
+        const { data } = await (supabase as any).from('profiles').select('*').eq('id', lookupId).maybeSingle()
         setProfile(data)
       }
       setLoading(false)
@@ -53,7 +92,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null)
       if (session?.user) {
-        const { data } = await (supabase as any).from('profiles').select('*').eq('id', session.user.id).maybeSingle()
+        const pinnedId = localStorage.getItem(PROFILE_KEY)
+        const lookupId = pinnedId ?? session.user.id
+        const { data } = await (supabase as any).from('profiles').select('*').eq('id', lookupId).maybeSingle()
         setProfile(data)
       }
     })
@@ -61,14 +102,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [supabase])
 
   if (configError) return (
-    <AuthContext.Provider value={{ user: null, profile: null, loading: false, supabase: null, refreshProfile: async () => {} }}>
+    <AuthContext.Provider value={{ user: null, profile: null, loading: false, supabase: null, refreshProfile: async () => {}, signInWithName: async () => 'error' }}>
       <div style={{padding:'2rem',textAlign:'center',color:'red',fontFamily:'monospace'}}>
         <b>Configuration Error</b><br/>NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are not set.<br/>Add them in Netlify → Site configuration → Environment variables.
       </div>
     </AuthContext.Provider>
   )
 
-  return <AuthContext.Provider value={{ user, profile, loading, supabase, refreshProfile }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ user, profile, loading, supabase, refreshProfile, signInWithName }}>{children}</AuthContext.Provider>
 }
 
 export const useAuth = () => useContext(AuthContext)
