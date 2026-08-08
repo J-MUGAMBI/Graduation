@@ -60,6 +60,7 @@ export function AdminTab() {
   }
 
   const deletePhoto = async (photo: PhotoView) => {
+    if (!supabase) return
     await supabase.storage.from('event-photos').remove([photo.storage_path])
     await (supabase as any).from('photos').delete().eq('id', photo.id)
     toast.success('Photo removed.')
