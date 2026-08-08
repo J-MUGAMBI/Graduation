@@ -24,23 +24,11 @@ export function HomeTab() {
     if (!name.trim()) return
     if (!hasTwoNames(name)) return toast.error('Please enter your first and last name.')
     setSaving(true)
-    // Ensure we have a live session before writing
     const { data: { session } } = await supabase!.auth.getSession()
     const uid = session?.user?.id
     if (!uid) {
       setSaving(false)
       return toast.error('Still connecting, please wait a moment and try again.')
-    }
-    // Check if this name belongs to a DIFFERENT user (not the current user)
-    const { data: taken } = await (supabase as any)
-      .from('profiles')
-      .select('id')
-      .ilike('display_name', name.trim())
-      .neq('id', uid)
-      .maybeSingle()
-    if (taken) {
-      setSaving(false)
-      return toast.error(`"${name.trim()}" is already taken. Please use a different name.`)
     }
     const { error } = await (supabase as any).from('profiles').upsert({ id: uid, display_name: name.trim() })
     setSaving(false)
@@ -102,7 +90,7 @@ export function HomeTab() {
           ) : (
             <div>
               <label className="label">Your full name</label>
-              <input id="display-name" name="display_name" className="input" placeholder="e.g. Jane Wanjiku" value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSave()} />
+              <input id="display-name" name="display_name" className="input" value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSave()} />
               <button onClick={handleSave} disabled={saving} className="btn-primary mt-3 w-full flex items-center justify-center gap-2">
                 {saving ? <Spinner size="sm" /> : <GraduationCap className="w-4 h-4" />}
                 Enter GradConnect
