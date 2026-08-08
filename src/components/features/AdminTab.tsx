@@ -2,11 +2,10 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { toast } from 'react-hot-toast'
 import { LayoutDashboard, Users, CheckSquare, Bell, Image, Megaphone, Trash2, RefreshCw } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
-import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { Spinner } from '@/components/ui/Spinner'
 import { StatusBadge } from '@/components/ui/StatusBadge'
@@ -15,7 +14,7 @@ import type { RsvpView, RequestView, PhotoView, FeedPostView } from '@/types/dat
 interface Stats { rsvps: number; attending: number; requests: number; photos: number; posts: number; totalAttendees: number }
 
 export function AdminTab() {
-  const { user, profile } = useAuth()
+  const { profile, supabase } = useAuth()
   const [stats, setStats] = useState<Stats>({ rsvps: 0, attending: 0, requests: 0, photos: 0, posts: 0, totalAttendees: 0 })
   const [rsvps, setRsvps] = useState<RsvpView[]>([])
   const [requests, setRequests] = useState<RequestView[]>([])
@@ -25,20 +24,14 @@ export function AdminTab() {
   const [posting, setPosting] = useState(false)
   const [loading, setLoading] = useState(true)
   const [activeSection, setActiveSection] = useState<'rsvps' | 'requests' | 'photos' | 'posts'>('rsvps')
-  const supabase = useMemo(() => createClient(), [])
 
   const load = useCallback(async () => {
-    const db = supabase as any
-    const [r1, r2, r3, r4] = await Promise.all([
-      db.from('rsvps_view').select('*').order('created_at', { ascending: false }),
-      db.from('requests_view').select('*').order('created_at', { ascending: false }),
-      db.from('photos_view').select('*').order('created_at', { ascending: false }),
-      db.from('feed_posts_view').select('*').order('created_at', { ascending: false }).limit(50),
-    ])
-    const rsvpData: RsvpView[] = r1.data ?? []
-    const reqData: RequestView[] = r2.data ?? []
-    const photoData: PhotoView[] = r3.data ?? []
-    const postData: FeedPostView[] = r4.data ?? []
+    const { data, error } = await (supabase as any).rpc('get_admin_data')
+    if (error) { console.error('admin load error:', error); setLoading(false); return }
+    const rsvpData: RsvpView[] = data?.rsvps ?? []
+    const reqData: RequestView[] = data?.requests ?? []
+    const photoData: PhotoView[] = data?.photos ?? []
+    const postData: FeedPostView[] = data?.posts ?? []
     setRsvps(rsvpData)
     setRequests(reqData)
     setPhotos(photoData)
@@ -82,7 +75,7 @@ export function AdminTab() {
     if (!announcement.trim()) return
     setPosting(true)
     const { error } = await (supabase as any).from('feed_posts').insert({
-      user_id: user!.id,
+      user_id: profile!.id,
       body: announcement.trim(),
       is_announcement: true,
     })
