@@ -14,7 +14,7 @@ interface AuthContextType {
   loading: boolean
   supabase: ReturnType<typeof createClient> | null
   refreshProfile: () => Promise<void>
-  signInWithName: (name: string) => Promise<'new' | 'returning' | 'error'>
+  signInWithName: (name: string, pin: string) => Promise<'new' | 'returning' | 'wrong_pin' | 'error'>
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -43,8 +43,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfile(data)
   }, [supabase])
 
-  // Sign in by name: returns 'returning' if name matched existing profile, 'new' if created
-  const signInWithName = useCallback(async (name: string): Promise<'new' | 'returning' | 'error'> => {
+  // Sign in by name + PIN: 'new' if created, 'returning' if verified, 'wrong_pin' if PIN mismatch
+  const signInWithName = useCallback(async (name: string, pin: string): Promise<'new' | 'returning' | 'wrong_pin' | 'error'> => {
     if (!supabase) return 'error'
     const { data: { session } } = await supabase.auth.getSession()
     const uid = session?.user?.id
@@ -55,15 +55,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .from('profiles').select('*').ilike('display_name', name.trim()).maybeSingle()
 
     if (existing) {
-      // Returning user — pin their original profile id
+      // Returning user — verify PIN via security definer RPC
+      const { data: verified } = await (supabase as any).rpc('verify_pin', { p_name: name.trim(), p_pin: pin })
+      if (!verified || verified.length === 0) return 'wrong_pin'
       localStorage.setItem(PROFILE_KEY, existing.id)
       setProfile(existing)
       return 'returning'
     }
 
-    // New user — create profile with current anon uid
+    // New user — create profile with PIN
     localStorage.setItem(PROFILE_KEY, uid)
-    const { error } = await (supabase as any).from('profiles').upsert({ id: uid, display_name: name.trim() })
+    const { error } = await (supabase as any).from('profiles').upsert({ id: uid, display_name: name.trim(), pin })
     if (error) return 'error'
     await refreshProfile()
     return 'new'

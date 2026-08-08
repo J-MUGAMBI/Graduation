@@ -11,6 +11,7 @@ import { Spinner } from '@/components/ui/Spinner'
 export function HomeTab() {
   const { profile, signInWithName } = useAuth()
   const [name, setName] = useState('')
+  const [pin, setPin] = useState('')
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
@@ -23,9 +24,11 @@ export function HomeTab() {
   const handleSave = async () => {
     if (!name.trim()) return
     if (!hasTwoNames(name)) return toast.error('Please enter your first and last name.')
+    if (!/^\d{4}$/.test(pin)) return toast.error('PIN must be exactly 4 digits.')
     setSaving(true)
-    const result = await signInWithName(name.trim())
+    const result = await signInWithName(name.trim(), pin)
     setSaving(false)
+    if (result === 'wrong_pin') return toast.error('Incorrect PIN. Try again.')
     if (result === 'error') return toast.error('Still connecting, please wait a moment and try again.')
     toast.success(`Welcome${result === 'returning' ? ' back' : ''}, ${name.trim()}! 🎓`)
   }
@@ -75,6 +78,8 @@ export function HomeTab() {
               <div>
                 <label className="label">Update your name</label>
                 <input id="display-name" name="display_name" className="input" value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSave()} />
+                <label className="label mt-3">PIN (4 digits)</label>
+                <input id="pin" name="pin" type="password" inputMode="numeric" maxLength={4} className="input" placeholder="Enter your PIN" value={pin} onChange={e => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))} onKeyDown={e => e.key === 'Enter' && handleSave()} />
                 <button onClick={handleSave} disabled={saving} className="btn-primary mt-3 w-full flex items-center justify-center gap-2">
                   {saving ? <Spinner size="sm" /> : null} Update Name
                 </button>
@@ -84,6 +89,9 @@ export function HomeTab() {
             <div>
               <label className="label">Your full name</label>
               <input id="display-name" name="display_name" className="input" value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSave()} />
+              <label className="label mt-3">Choose a 4-digit PIN</label>
+              <input id="pin" name="pin" type="password" inputMode="numeric" maxLength={4} className="input" placeholder="e.g. 1234" value={pin} onChange={e => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))} onKeyDown={e => e.key === 'Enter' && handleSave()} />
+              <p className="text-xs text-gray-400 mt-1">You'll need this PIN to sign in from other devices.</p>
               <button onClick={handleSave} disabled={saving} className="btn-primary mt-3 w-full flex items-center justify-center gap-2">
                 {saving ? <Spinner size="sm" /> : <GraduationCap className="w-4 h-4" />}
                 Enter GradConnect

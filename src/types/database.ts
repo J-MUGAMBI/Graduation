@@ -4,9 +4,9 @@ export interface Database {
   public: {
     Tables: {
       profiles: {
-        Row: { id: string; display_name: string; is_admin: boolean; created_at: string }
-        Insert: { id: string; display_name: string; is_admin?: boolean; created_at?: string }
-        Update: { id?: string; display_name?: string; is_admin?: boolean }
+        Row: { id: string; display_name: string; is_admin: boolean; created_at: string; pin: string | null }
+        Insert: { id: string; display_name: string; is_admin?: boolean; created_at?: string; pin?: string | null }
+        Update: { id?: string; display_name?: string; is_admin?: boolean; pin?: string | null }
       }
       rsvps: {
         Row: { id: string; user_id: string; phone: string | null; status: string; dietary: string | null; note: string | null; attendee_count: number; created_at: string }
