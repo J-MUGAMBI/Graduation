@@ -29,9 +29,7 @@ export function DirectMessageTab() {
 
   const loadMessages = useCallback(async (otherId: string) => {
     const { data, error } = await (supabase as any)
-      .from('direct_messages')
-      .select('*')
-      .order('created_at', { ascending: true })
+      .rpc('get_direct_messages', { p_profile_id: profile!.id })
     if (error) { console.error('loadMessages error:', error); return }
     const convo = (data ?? []).filter((m: DirectMessage) =>
       (m.sender_id === profile!.id && m.recipient_id === otherId) ||
@@ -77,10 +75,10 @@ export function DirectMessageTab() {
   const send = async () => {
     if (!body.trim() || !profile || !selectedGuest) return
     setSending(true)
-    const { error } = await (supabase as any).from('direct_messages').insert({
-      sender_id: profile.id,
-      recipient_id: selectedGuest.id,
-      body: body.trim(),
+    const { error } = await (supabase as any).rpc('send_direct_message', {
+      p_sender_id: profile.id,
+      p_recipient_id: selectedGuest.id,
+      p_body: body.trim(),
     })
     setSending(false)
     if (error) return toast.error(error.message)
