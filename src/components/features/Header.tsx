@@ -23,7 +23,7 @@ export function Header() {
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">
                 <GraduationCap className="w-4 h-4 text-gold-400 shrink-0" />
-                <span>Master&apos;s in Data Science &amp; Analytics</span>
+                <span>Masters in Data Science &amp; Analytics</span>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-gold-400 shrink-0" />
